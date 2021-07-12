@@ -3,27 +3,28 @@ package applicationPages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 
-public class PricesPage extends BasePage{
+
+public class MultimodalPage extends BasePage {
     private WebDriver driver;
 
     //Page URL
-    private static String PAGE_URL = "https://www.kraken.com/prices";
+    private static String PAGE_URL = "https://www.w3.org/standards/webofdevices/multimodal";
 
-    @FindBy(how = How.LINK_TEXT, using = "Kraken")
-    private WebElement heading;
+    //Locators
+    @FindBy(className = "title")
+    private WebElement modal;
 
-    public PricesPage(WebDriver driver) {
+    public MultimodalPage(WebDriver driver) {
         super(driver);
         this.driver = driver;
         driver.get(PAGE_URL);
         PageFactory.initElements(driver, this);
     }
 
-
     public boolean isPageOpened() {
-        return heading.getText().toString().contains("Kraken");
+        return modal.getText().contains("MULTIMODAL ACCESS");
     }
 }
+

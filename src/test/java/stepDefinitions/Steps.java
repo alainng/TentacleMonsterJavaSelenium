@@ -1,9 +1,6 @@
 package stepDefinitions;
 
-import applicationPages.HomePage;
-import applicationPages.PricesPage;
-import applicationPages.DoesntexistPage;
-import applicationPages.PgpPage;
+import applicationPages.*;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -32,6 +29,7 @@ public class Steps {
     private static final String BASE_URL = "https://www.kraken.com/";
     private static String[] listOfLinks = null;
     private static int linksCount = 0;
+    private BasePage page;
 
     @Given("a chrome browser")
     public void createChromeBrowser() {
@@ -42,44 +40,37 @@ public class Steps {
         logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
         options.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
         driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     @Given("a firefox browser")
     public void createFirefoxBrowser() {
         System.setProperty("webdriver.gecko.driver", "drivers\\geckodriver.exe");
         driver=new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
     }
 
-    @When("user loads the home page")
-    public void userLoadsTheHomePage() {
-        HomePage homePage = new HomePage(driver);
-        Assert.assertTrue(homePage.isPageOpened());
+    @When("user loads the multimodal page")
+    public void userLoadsTheMultimodalPage() {
+        MultimodalPage multimodalPage = new MultimodalPage(driver);
+        Assert.assertTrue(multimodalPage.isPageOpened());
+        page = multimodalPage;
     }
 
-    @When("user loads the prices page")
-    public void userLoadsThePricesPage() {
-        PricesPage pricesPage = new PricesPage(driver);
-        Assert.assertTrue(pricesPage.isPageOpened());
+    @When("user loads the htmlcss page")
+    public void userLoadsTheHtmlcssPage() {
+        HtmlcssPage htmlcssPage = new HtmlcssPage(driver);
+        Assert.assertTrue(htmlcssPage.isPageOpened());
+        page = htmlcssPage;
     }
 
-    @When("user loads the doesntexist page")
-    public void userLoadsTheDoesntexistPage() {
-        DoesntexistPage doesntexistPage = new DoesntexistPage(driver);
-        Assert.assertTrue(doesntexistPage.isPageOpened());
+    @When("user loads the bad page")
+    public void userLoadsTheBadPage() {
+        page = new BadPage(driver);
     }
 
-    @When("user loads the pgp page")
-    public void userLoadsThePgpPage() {
-        PgpPage pgpPage = new PgpPage(driver);
-        Assert.assertTrue(pgpPage.isPageOpened());
-    }
 
     @Then("page loads without javascript errors")
     public void pageLoadsWithoutJavascriptErrors() {
-        HomePage homePage = new HomePage(driver);
-        Assert.assertFalse(homePage.hasJavascriptErrors());
+        Assert.assertFalse(page.hasJavascriptErrors());
     }
 
     @When("user clicks on all links")
@@ -91,6 +82,7 @@ public class Steps {
         listOfLinks= new String[linksCount];
         for(int i=0; i<linksCount; i++) {
             listOfLinks[i] = listOfWebElements.get(i).getAttribute("href");
+            //known bug: string list can contain nulls
         }
 
     }
@@ -100,11 +92,19 @@ public class Steps {
         Assert.assertEquals(200, getResponseCode());
     }
 
+    @Then("response code is 404")
+    public void responseCodeIs404() {
+        Assert.assertEquals(404, getResponseCode());
+    }
+
     @Then("all links load to a live page")
     public void allLinksLoadToALivePage() {
         // navigate to each Link on the webpage
         for(int i=0; i<linksCount; i++)
         {
+            if(listOfLinks[i] == null){
+                continue;
+            }
             driver.navigate().to(listOfLinks[i]);
             int status = getResponseCode();
             Assert.assertTrue(status<400 || status>499);
@@ -137,7 +137,6 @@ public class Steps {
                     if (currentURL.equals(messageUrl)) {
                         status = response.getInt("status");
                         System.out.println("---------- bingo !!!!!!!!!!!!!! returned response for " + messageUrl + ": " + status);
-//                        System.out.println("---------- bingo !!!!!!!!!!!!!! headers: " + response.get("headers"));
                         break;
                     }
                 }

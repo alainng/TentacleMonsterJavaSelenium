@@ -3,26 +3,27 @@ package applicationPages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 
-public class DoesntexistPage extends BasePage{
+public class HtmlcssPage extends BasePage{
     private WebDriver driver;
 
     //Page URL
-    private static String PAGE_URL = "https://www.kraken.com/doesntexist";
+    private static String PAGE_URL = "https://www.w3.org/standards/webdesign/htmlcss";
 
-    @FindBy(tagName="h1")
+    //Locators
+    @FindBy(className = "title")
     private WebElement heading;
 
-    public DoesntexistPage(WebDriver driver) {
+    public HtmlcssPage(WebDriver driver) {
         super(driver);
         this.driver = driver;
         driver.get(PAGE_URL);
         PageFactory.initElements(driver, this);
     }
 
+
     public boolean isPageOpened() {
-        return heading.getText().toString().contains("404");
+        return heading.getText().contains("HTML & CSS");
     }
 }
